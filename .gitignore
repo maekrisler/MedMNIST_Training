@@ -1,0 +1,8 @@
+MedNIST*
+.data_download.lock
+venv/
+.venv/
+env/
+site-packages/
+__pycache__/
+*.pyc
