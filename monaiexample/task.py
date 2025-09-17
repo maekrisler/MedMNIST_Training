@@ -20,6 +20,7 @@ from monai.transforms import (
     RandRotate,
     RandZoom,
     ScaleIntensity,
+    NormalizeIntensity,
     ToTensor,
 )
 
@@ -81,11 +82,14 @@ def test(model, test_loader, device):
 
 def _get_transforms():
     """Return transforms to be used for training and evaluation."""
+    # Compose is a MONAI function for batch data cleaning and preprocessing
+    # data is normalized here for better accuracy
     train_transforms = Compose(
         [
             LoadImage(image_only=True),
             EnsureChannelFirst(),
             ScaleIntensity(),
+            NormalizeIntensity(), # added for better accuracy
             RandRotate(range_x=15, prob=0.5, keep_size=True),
             RandFlip(spatial_axis=0, prob=0.5),
             RandZoom(min_zoom=0.9, max_zoom=1.1, prob=0.5, keep_size=True),
@@ -131,7 +135,7 @@ def load_data(num_partitions, partition_id, batch_size):
     partition = partitioner.load_partition(partition_id)
 
     # Take a fraction of the partition (e.g., 10%)
-    subset_fraction = 0.1
+    subset_fraction = 0.5
     subset_size = int(len(partition) * subset_fraction)
     subset_indices = random.sample(range(len(partition)), subset_size)
     partition = partition.select(subset_indices)
@@ -170,6 +174,7 @@ def _download_data():
     class_names = sorted(
         [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
     )
+    print(f"Class Names: {class_names}")
 
     image_files = [
         [
@@ -185,7 +190,7 @@ def _download_data():
         image_label_list.extend([i] * len(image_files[i]))
 
     # TOY RUN FOR TESTING
-    toy_size = 200
+    toy_size = 300
     indices = random.sample(range(len(image_file_list)), toy_size)
     image_file_list = [image_file_list[i] for i in indices]
     image_label_list = [image_label_list[i] for i in indices]
