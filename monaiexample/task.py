@@ -119,16 +119,23 @@ ds = None
 partitioner = None
 
 
-def load_data(num_partitions, partition_id, batch_size):
+def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     """Download dataset, partition it and return data loader of specific partition."""
     # Set dataset and partitioner only once
     global ds, partitioner
-    if ds is None:
+    if ds is None and percent_flipped == 0:
         image_file_list, image_label_list = _download_data()
 
         # Construct HuggingFace dataset
         ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
         # Set partitioner
+        partitioner = IidPartitioner(num_partitions)
+        partitioner.dataset = ds
+
+    elif ds is None and percent_flipped > 0:
+        # construct flipped datset every time to avoid reusing previously flipped dataset
+        ds = label_flipping(percent_flipped)
+        # set partitioner
         partitioner = IidPartitioner(num_partitions)
         partitioner.dataset = ds
 
@@ -160,6 +167,36 @@ def load_data(num_partitions, partition_id, batch_size):
     val_loader = monai.data.DataLoader(partition_val, batch_size=batch_size)
 
     return train_loader, val_loader
+
+
+def label_flipping(percent_flipped):
+    """Flip labels for data poisoning attack."""
+    image_file_list, image_label_list = _download_data()
+    ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
+
+    # pull set of labels out of ds
+    labels = ds["label"]
+    # get total number of unique classes
+    num_classes = len(set(labels))
+
+    # flip percent_flipped % of the labels to a different class
+    num_to_flip = int(percent_flipped * num_classes)
+    indicies = random.sample(range(len(ds)), num_to_flip)
+
+    # copy the labels and flip the selected ones
+    flipped = labels.copy()
+    for i in indicies:
+        original = flipped[i]
+        # check that choosen class is not the same as original
+        class_options = [label for label in range(num_classes) if label != original]
+        # pick random label from remaining options
+        flipped[i] = random.choice(class_options)
+
+    # remove old labels and add new flipped ones
+    ds = ds.remove_columns("label").add_column("label", flipped)
+
+    return ds
+
 
 
 def _download_data():
