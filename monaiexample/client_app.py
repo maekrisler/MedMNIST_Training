@@ -4,8 +4,8 @@ import torch
 from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context
 
-from monaiexample.task import get_params, load_data, load_model, set_params, test, train
-
+# from monaiexample.task import get_params, load_data, load_model, set_params, test, train
+from task import get_params, load_data, load_model, set_params, test, train
 
 # Define Flower client
 class FlowerClient(NumPyClient):
@@ -27,6 +27,7 @@ class FlowerClient(NumPyClient):
 
 
 def client_fn(context: Context):
+    print("in client_fn")
 
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]

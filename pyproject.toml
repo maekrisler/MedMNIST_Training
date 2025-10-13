@@ -33,6 +33,8 @@ batch-size = 128
 [tool.flwr.federations]
 default = "local-simulation"
 
+# changing the number of supernodes will determine how many clients are sampled!
+# to scale federated learning change this value
 [tool.flwr.federations.local-simulation]
 options.num-supernodes = 2                      # changed from 10 for testing 
 
