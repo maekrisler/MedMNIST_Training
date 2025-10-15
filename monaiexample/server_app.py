@@ -1,7 +1,6 @@
 """monaiexample: A Flower / MONAI app."""
 
 from typing import List, Tuple
-
 from flwr.common import Context, Metrics, ndarrays_to_parameters
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
 from flwr.server.strategy import FedAvg
@@ -11,63 +10,79 @@ import datetime
 
 from monaiexample.task import get_params, load_model
 
-results = []
-CSV_FILE = "results.csv"
 
-# --- Create a unique filename for each run ---
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-CSV_FILE = f"results_{timestamp}.csv"
+AGG_CSV = f"results_{timestamp}.csv"          # Aggregated (global) results
+CLIENT_CSV = f"client_metrics_{timestamp}.csv"  # Per-client results
+
+# Initialize both CSVs
+if not os.path.exists(AGG_CSV):
+    pd.DataFrame(columns=["Round", "AvgAccuracy", "AvgLoss"]).to_csv(AGG_CSV, index=False)
+if not os.path.exists(CLIENT_CSV):
+    pd.DataFrame(columns=["Client", "Round", "Accuracy", "Loss"]).to_csv(CLIENT_CSV, index=False)
+
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-    # Separate accuracy and loss values (if provided by clients)
-    accuracies = []
-    losses = []
-    examples = []
-    
-    for num_examples, m in metrics:
-        examples.append(num_examples)
-        if "accuracy" in m:
-            accuracies.append(num_examples * m["accuracy"])
-        if "loss" in m:
-            losses.append(num_examples * m["loss"])
+    """
+    Called once per round after all clients report their results.
+    Logs per-client metrics and computes weighted global averages.
+    """
 
-    total_examples = sum(examples)
-
-    # Compute weighted averages
-    avg_accuracy = sum(accuracies) / total_examples if accuracies else None
-    avg_loss = sum(losses) / total_examples if losses else None
-
-    if os.path.exists(CSV_FILE):
-        existing = pd.read_csv(CSV_FILE)
-        round_num = existing.shape[0] + 1
-        header = False
+    # Determine current round number based on existing aggregate CSV
+    if os.path.exists(AGG_CSV):
+        existing = pd.read_csv(AGG_CSV)
+        round_num = int(existing["Round"].max() + 1) if not existing.empty else 1
     else:
         round_num = 1
-        header = True
 
-    # Prepare a new row
-    row = {"round": round_num}
-    if avg_accuracy is not None:
-        row["accuracy"] = avg_accuracy
-    if avg_loss is not None:
-        row["loss"] = avg_loss
+    total_examples = 0
+    weighted_acc_sum = 0.0
+    weighted_loss_sum = 0.0
+    client_rows = []
 
-    # Append to CSV
-    df = pd.DataFrame([row])
-    df.to_csv(CSV_FILE, mode="a", header=header, index=False)
-    return {"accuracy": sum(accuracies) / sum(examples)}
+    # Process result for each client
+    for client_idx, (num_examples, m) in enumerate(metrics):
+        acc = m.get("accuracy", None)
+        loss = m.get("loss", None)
+
+        client_rows.append({
+            "Client": client_idx,
+            "Round": round_num,
+            "Accuracy": acc,
+            "Loss": loss,
+        })
+
+        if acc is not None:
+            weighted_acc_sum += acc * num_examples
+        if loss is not None:
+            weighted_loss_sum += loss * num_examples
+        total_examples += num_examples
+
+    # Write per client
+    if client_rows:
+        pd.DataFrame(client_rows).to_csv(CLIENT_CSV, mode="a", header=False, index=False)
+
+    # Compute and save aggregate
+    avg_accuracy = weighted_acc_sum / total_examples if total_examples > 0 else None
+    avg_loss = weighted_loss_sum / total_examples if total_examples > 0 else None
+
+    agg_row = pd.DataFrame([{
+        "Round": round_num,
+        "AvgAccuracy": avg_accuracy,
+        "AvgLoss": avg_loss,
+    }])
+    agg_row.to_csv(AGG_CSV, mode="a", header=False, index=False)
+
+    return {"accuracy": avg_accuracy, "loss": avg_loss}
 
 
 def server_fn(context: Context):
-
-    # Init model
+    # Initialize global model
     model = load_model()
-
-    # Convert model parameters to flwr.common.Parameters
     ndarrays = get_params(model)
     global_model_init = ndarrays_to_parameters(ndarrays)
 
-    # Define strategy
+    # Define strategy using FedAvg
     fraction_fit = context.run_config["fraction-fit"]
     strategy = FedAvg(
         fraction_fit=fraction_fit,
@@ -75,11 +90,12 @@ def server_fn(context: Context):
         initial_parameters=global_model_init,
     )
 
-    # Construct ServerConfig
+    # Configure server rounds
     num_rounds = context.run_config["num-server-rounds"]
     config = ServerConfig(num_rounds=num_rounds)
 
     return ServerAppComponents(strategy=strategy, config=config)
 
 
+# Create server app
 app = ServerApp(server_fn=server_fn)
