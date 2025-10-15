@@ -5,4 +5,5 @@ venv/
 env/
 site-packages/
 __pycache__/
-*.pyc
+*.pyc/
+flwr-env

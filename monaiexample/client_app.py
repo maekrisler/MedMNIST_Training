@@ -23,7 +23,7 @@ class FlowerClient(NumPyClient):
     def evaluate(self, parameters, config):
         set_params(self.net, parameters)
         loss, accuracy = test(self.net, self.valloader, self.device)
-        return loss, len(self.valloader), {"accuracy": accuracy}
+        return loss, len(self.valloader), {"accuracy": accuracy, "loss": loss}
 
 
 def client_fn(context: Context):
