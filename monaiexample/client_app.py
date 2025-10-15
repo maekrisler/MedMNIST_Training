@@ -4,8 +4,8 @@ import torch
 from flwr.client import ClientApp, NumPyClient
 from flwr.common import Context
 
-# from monaiexample.task import get_params, load_data, load_model, set_params, test, train
-from task import get_params, load_data, load_model, set_params, test, train
+from monaiexample.task import get_params, load_data, load_model, set_params, test, train
+# from task import get_params, load_data, load_model, set_params, test, train
 
 # Define Flower client
 class FlowerClient(NumPyClient):
@@ -29,12 +29,20 @@ class FlowerClient(NumPyClient):
 def client_fn(context: Context):
     print("in client_fn")
 
+    # get configurations from pyproject.toml file
+    # partition id defines what client is sampling the data
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
 
     batch_size = context.run_config["batch-size"]
-    # TODO: add cmd arg for percent_flipped?? 
-    trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped=0.5)
+    # added params for data poisoning
+    # poison 4 out of the 20 total clients 
+    if partition_id < 4:
+        percent_flipped = context.run_config.get("percent-flipped", 0.0)
+    else:
+        percent_flipped = 0.0
+
+    trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped)
     net = load_model()
 
     return FlowerClient(net, trainloader, valloader).to_client()

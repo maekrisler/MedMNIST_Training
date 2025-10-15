@@ -27,18 +27,22 @@ clientapp = "monaiexample.client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 5
-fraction-fit = 0.5
+# fraction fit is how many clients are sampled 
+# 0.2 = 4 out of the 20 clients are sampled
+fraction-fit = 0.2
 batch-size = 128
+# set the level of data flipping
+percent-flipped = 0.5
 
 [tool.flwr.federations]
 default = "local-simulation"
 
-# changing the number of supernodes will determine how many clients are sampled!
-# to scale federated learning change this value
+# this will run the local simulation
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 2                      # changed from 10 for testing 
+options.num-supernodes = 20
 
 [tool.flwr.federations.local-simulation-gpu]
 options.num-supernodes = 10
 options.backend.client-resources.num-cpus = 4
 options.backend.client-resources.num-gpus = 0.25 # at most 4 ClientApps will run in a given GPU
+
