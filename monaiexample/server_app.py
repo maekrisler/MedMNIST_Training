@@ -9,6 +9,7 @@ import os
 import datetime
 
 from monaiexample.task import get_params, load_model
+# from task import get_params, load_model
 
 
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
