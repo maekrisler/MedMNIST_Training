@@ -33,7 +33,7 @@ def client_fn(context: Context):
 
     batch_size = context.run_config["batch-size"]
     # TODO: add cmd arg for percent_flipped?? 
-    trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped=0.5)
+    trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped=0.2)
     net = load_model()
 
     return FlowerClient(net, trainloader, valloader).to_client()
