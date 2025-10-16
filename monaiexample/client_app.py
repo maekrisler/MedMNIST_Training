@@ -27,7 +27,6 @@ class FlowerClient(NumPyClient):
 
 
 def client_fn(context: Context):
-    print("in client_fn")
 
     # get configurations from pyproject.toml file
     # partition id defines what client is sampling the data
