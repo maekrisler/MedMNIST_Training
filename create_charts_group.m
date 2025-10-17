@@ -1,16 +1,22 @@
 function create_charts_group
 
     %
-    %
-    %
-    %
-    %
-    %
+    % Quick and rough script to churn out charts for
+    % all attack rates in the CSCI-532 Group Project.
+    % Takes in 12 CSV files with the requisite sorted
+    % data with an equal amount of clients and rounds ran.
+    % Creates and saves 14 figures to the disk:
+    % - 6 about accuracy per client per round for each type
+    %   of attack
+    % - 6 of the same, but for loss instead of accuracy
+    % - 1 chart for the average/aggregate accuracy per round
+    % - 1 chart for the same, but for loss instead of accuracy
     %
     % Author: Lily O'Carroll <lso2973>
     % Date: 12 October, 2025
     %
 
+    % Close any already-open figures
     close all
 
     % Read in the file of each client's data.
@@ -40,7 +46,7 @@ function create_charts_group
     clientDataFullAttack = readtable('results_100.csv');
     aggregateDataFullAttack = readtable('aggregated_results_100.csv');
 
-    % How many rounds did it take to reach convergence?
+    % How many rounds did these simulations run?
     maximum_rounds = max(aggregateDataWithoutAttack.Round);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%% PER-CLIENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -182,6 +188,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Loss", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -266,6 +273,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Loss", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -350,6 +358,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Loss", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -434,6 +443,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Loss", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -518,6 +528,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Loss", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -690,6 +701,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -774,6 +786,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -858,6 +871,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -942,6 +956,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
@@ -1026,6 +1041,7 @@ function create_charts_group
     cmap = colormap(parula(20));
     cmap(1,:);
 
+    figure
     c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
         "Color", cmap(1,:));
     hold on
