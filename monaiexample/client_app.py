@@ -17,7 +17,7 @@ class FlowerClient(NumPyClient):
 
     def fit(self, parameters, config):
         set_params(self.net, parameters)
-        train(self.net, self.trainloader, epoch_num=1, device=self.device)
+        train(self.net, self.trainloader, epoch_num=3, device=self.device)
         return get_params(self.net), len(self.trainloader), {}
 
     def evaluate(self, parameters, config):
@@ -37,7 +37,7 @@ def client_fn(context: Context):
     # added params for data poisoning
     # poison 4 out of the 20 total clients 
     if partition_id < 4:
-        percent_flipped = context.run_config.get("percent-flipped", 0.0)
+        percent_flipped = context.run_config["percent-flipped"]
     else:
         percent_flipped = 0.0
 
