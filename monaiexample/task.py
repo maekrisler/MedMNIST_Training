@@ -46,7 +46,7 @@ def train(model, train_loader, epoch_num, device):
     """Train a model using the supplied dataloader."""
     model.to(device)
     loss_function = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), 1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), 1e-4)
     for _ in range(epoch_num):
         model.train()
         for batch in train_loader:
@@ -74,9 +74,9 @@ def test(model, test_loader, device):
             for i in range(len(pred)):
                 y_true.append(labels[i].item())
                 y_pred.append(pred[i].item())
-    accuracy = sum([1 if t == p else 0 for t, p in zip(y_true, y_pred)]) / len(
-        test_loader.dataset
-    )
+    total_samples = len(y_true)
+    accuracy = sum([1 if t == p else 0 for t, p in zip(y_true, y_pred)]) / total_samples
+
     return loss, accuracy
 
 
@@ -89,7 +89,6 @@ def _get_transforms():
             LoadImage(image_only=True),
             EnsureChannelFirst(),
             ScaleIntensity(),
-            NormalizeIntensity(), # added for better accuracy
             RandRotate(range_x=15, prob=0.5, keep_size=True),
             RandFlip(spatial_axis=0, prob=0.5),
             RandZoom(min_zoom=0.9, max_zoom=1.1, prob=0.5, keep_size=True),
@@ -105,14 +104,13 @@ def _get_transforms():
 
 
 def get_apply_transforms_fn(transforms_to_apply):
-    """Return a function that applies the transforms passed as input argument."""
-
     def apply_transforms(batch):
-        """Apply transforms to the partition from FederatedDataset."""
-        batch["img"] = [transforms_to_apply(img) for img in batch["img_file"]]
+        imgs = [transforms_to_apply(img) for img in batch["img_file"]]
+        batch["img"] = torch.stack(imgs)               # shape [B, 1, H, W]
+        batch["label"] = torch.tensor(batch["label"], dtype=torch.long)
         return batch
-
     return apply_transforms
+
 
 
 ds = None
@@ -142,7 +140,7 @@ def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     partition = partitioner.load_partition(partition_id)
 
     # Take a fraction of the partition (e.g., 10%)
-    subset_fraction = 0.5
+    subset_fraction = 0.8
     subset_size = int(len(partition) * subset_fraction)
     subset_indices = random.sample(range(len(partition)), subset_size)
     partition = partition.select(subset_indices)
@@ -227,7 +225,7 @@ def _download_data():
         image_label_list.extend([i] * len(image_files[i]))
 
     # TOY RUN FOR TESTING
-    toy_size = 300
+    toy_size = 500
     indices = random.sample(range(len(image_file_list)), toy_size)
     image_file_list = [image_file_list[i] for i in indices]
     image_label_list = [image_label_list[i] for i in indices]

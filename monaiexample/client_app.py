@@ -17,7 +17,7 @@ class FlowerClient(NumPyClient):
 
     def fit(self, parameters, config):
         set_params(self.net, parameters)
-        train(self.net, self.trainloader, epoch_num=1, device=self.device)
+        train(self.net, self.trainloader, epoch_num=3, device=self.device)
         return get_params(self.net), len(self.trainloader), {}
 
     def evaluate(self, parameters, config):
