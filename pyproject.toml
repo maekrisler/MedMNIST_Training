@@ -27,12 +27,12 @@ clientapp = "monaiexample.client_app:app"
 
 [tool.flwr.app.config]
 num-server-rounds = 5
-# fraction fit is how many clients are sampled 
+# fraction fit is how many clients are sampled per round
 # 0.2 = 4 out of the 20 clients are sampled
-fraction-fit = 0.2
+fraction-fit = 1.0
 batch-size = 128
 # set the level of data flipping
-percent-flipped = 0.5
+percent-flipped = 0.0
 
 [tool.flwr.federations]
 default = "local-simulation"

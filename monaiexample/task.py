@@ -89,7 +89,6 @@ def _get_transforms():
             LoadImage(image_only=True),
             EnsureChannelFirst(),
             ScaleIntensity(),
-            NormalizeIntensity(), # added for better accuracy
             RandRotate(range_x=15, prob=0.5, keep_size=True),
             RandFlip(spatial_axis=0, prob=0.5),
             RandZoom(min_zoom=0.9, max_zoom=1.1, prob=0.5, keep_size=True),
