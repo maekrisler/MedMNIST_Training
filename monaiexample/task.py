@@ -46,7 +46,7 @@ def train(model, train_loader, epoch_num, device):
     """Train a model using the supplied dataloader."""
     model.to(device)
     loss_function = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), 1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), 1e-4)
     for _ in range(epoch_num):
         model.train()
         for batch in train_loader:
@@ -225,7 +225,7 @@ def _download_data():
         image_label_list.extend([i] * len(image_files[i]))
 
     # TOY RUN FOR TESTING
-    toy_size = 3000
+    toy_size = 1000
     indices = random.sample(range(len(image_file_list)), toy_size)
     image_file_list = [image_file_list[i] for i in indices]
     image_label_list = [image_label_list[i] for i in indices]
