@@ -131,7 +131,7 @@ def load_data(num_partitions, partition_id, batch_size, percent_flipped):
         partitioner = IidPartitioner(num_partitions)
         partitioner.dataset = ds
 
-    elif ds is None and percent_flipped > 0:
+    else:
         # construct flipped datset every time to avoid reusing previously flipped dataset
         ds = label_flipping(percent_flipped)
         # set partitioner
