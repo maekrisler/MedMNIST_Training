@@ -122,21 +122,19 @@ def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     """Download dataset, partition it and return data loader of specific partition."""
     # Set dataset and partitioner only once
     global ds, partitioner
-    if ds is None and percent_flipped == 0:
-        image_file_list, image_label_list = _download_data()
-
-        # Construct HuggingFace dataset
-        ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
-        # Set partitioner
-        partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = ds
-
+    if percent_flipped == 0.0:
+        if ds is None:
+            # load clean dataset once
+            image_file_list, image_label_list = _download_data()
+            ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
+            partitioner = IidPartitioner(num_partitions)
+            partitioner.dataset = ds
     else:
-        # construct flipped datset every time to avoid reusing previously flipped dataset
-        ds = label_flipping(percent_flipped)
-        # set partitioner
+        # build poisoned dataset fresh for each poisoned client
+        poisoned_ds = label_flipping(percent_flipped)
         partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = ds
+        partitioner.dataset = poisoned_ds
+
 
     partition = partitioner.load_partition(partition_id)
 
@@ -179,7 +177,7 @@ def label_flipping(percent_flipped):
     num_classes = len(set(labels))
 
     # flip percent_flipped % of the labels to a different class
-    num_to_flip = int(percent_flipped * num_classes)
+    num_to_flip = int(percent_flipped * len(ds))
     indicies = random.sample(range(len(ds)), num_to_flip)
 
     # copy the labels and flip the selected ones
