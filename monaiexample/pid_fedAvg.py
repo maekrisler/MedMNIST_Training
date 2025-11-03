@@ -8,7 +8,7 @@ from flwr.common import parameters_to_ndarrays
 # by extending, model updates can be computed and checked for poisoning
 
 class PIDFedAvg(FedAvg):
-    def __init__(self, k=1.0, ki=0.05, kd=0.5, threshold=0.1, **kwargs):
+    def __init__(self, k=1.0, ki=0.05, kd=0.5, threshold=0.01, **kwargs):
         super().__init__(**kwargs)
         self.k = k
         self.ki = ki
@@ -41,22 +41,37 @@ class PIDFedAvg(FedAvg):
 
         pids = []
         for cid, dist in zip([r[0].cid for r in results], distances):
-            prev_state = self.client_history.get(cid, {"integral": 0.0, "preiv_dist": 0.0, "PID": 0.0})
+            prev_state = self.client_history.get(cid, {"integral": 0.0, "prev_dist": 0.0, "PID": 0.0})
 
             P = self.k * dist
             I = prev_state["integral"] + self.ki * dist
-            D = self.kd * (dist - prev_state["preiv_dist"])
+            D = self.kd * (dist - prev_state["prev_dist"])
 
             PID_value = P + I + D
-            
-            self.client_history[cid] = {"integral": I, "preiv_dist": dist, "PID": PID_value}
+
+            self.client_history[cid] = {"integral": I, "prev_dist": dist, "PID": PID_value}
+
             pids.append((cid, PID_value))
 
+        # get all PIDS to compute new thr for pruning
+        pids = [self.client_history[client_proxy.cid]["PID"] for client_proxy, _ in results]
+
+        mean_pid = np.mean(pids)
+        std_pid = np.std(pids)
+        new_thr = mean_pid - std_pid
+
+
         clean_clients = []
-        for r in results:
-            if self.client_history[cid]["PID"] <= self.threshold:
-                clean_clients.append(r)
+        for client_proxy, fit_res in results:
+            cid = client_proxy.cid
+            if self.client_history[cid]["PID"] <= new_thr:
+                # do not append to final list
+                continue
+            else:
+                clean_clients.append((client_proxy, fit_res))
+
+
         
-        print(f"Round {round}: Retaining {len(clean_clients)} / {len(results)} clients")
+        print(f"\tRound {round}: Retaining {len(clean_clients)} / {len(results)} clients")
 
         return super().aggregate_fit(round, clean_clients, failures)
