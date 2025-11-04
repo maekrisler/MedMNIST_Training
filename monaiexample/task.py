@@ -116,25 +116,25 @@ def get_apply_transforms_fn(transforms_to_apply):
 
 ds = None
 partitioner = None
-
+poisoned_ds_cache = None
 
 def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     """Download dataset, partition it and return data loader of specific partition."""
     # Set dataset and partitioner only once
-    global ds, partitioner
-    if percent_flipped == 0.0:
+    global ds, partitioner, poisoned_ds_cache
+    
+    if percent_flipped > 0.0:
+        if poisoned_ds_cache is None:
+            poisoned_ds_cache = label_flipping(percent_flipped)
+        partitioner = IidPartitioner(num_partitions)
+        partitioner.dataset = poisoned_ds_cache
+    else:
+        # Use clean dataset
         if ds is None:
-            # load clean dataset once
             image_file_list, image_label_list = _download_data()
             ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
             partitioner = IidPartitioner(num_partitions)
             partitioner.dataset = ds
-    else:
-        # build poisoned dataset fresh for each poisoned client
-        poisoned_ds = label_flipping(percent_flipped)
-        partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = poisoned_ds
-
 
     partition = partitioner.load_partition(partition_id)
 

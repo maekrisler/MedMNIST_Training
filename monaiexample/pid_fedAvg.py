@@ -58,17 +58,24 @@ class PIDFedAvg(FedAvg):
 
         mean_pid = np.mean(pids)
         std_pid = np.std(pids)
-        new_thr = mean_pid - std_pid
+        new_thr = mean_pid + std_pid
 
 
+        pruned_clients = []
         clean_clients = []
-        for client_proxy, fit_res in results:
+
+        for i, (client_proxy, fit_res) in enumerate(results):
             cid = client_proxy.cid
-            if self.client_history[cid]["PID"] <= new_thr:
-                # do not append to final list
-                continue
+            simple_cid = f"client_{i}"  # This matches CSV indexing
+            
+            if self.client_history[cid]["PID"] >= new_thr:
+                pruned_clients.append(simple_cid)
+                print(f"   🔴 Pruned Client {simple_cid} - PID: {self.client_history[cid]['PID']:.4f}")
             else:
                 clean_clients.append((client_proxy, fit_res))
+                print(f"   ✅ Kept Client {simple_cid} - PID: {self.client_history[cid]['PID']:.4f}")
+
+        print(f"Round {round}: Pruned {len(pruned_clients)} clients: {pruned_clients}")
 
 
         

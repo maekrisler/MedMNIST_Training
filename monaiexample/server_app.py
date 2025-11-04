@@ -43,12 +43,15 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     client_rows = []
 
     # Process result for each client
-    for client_idx, (num_examples, m) in enumerate(metrics):
+    for i, (num_examples, m) in enumerate(metrics):
         acc = m.get("accuracy", None)
         loss = m.get("loss", None)
-
+        
+        # Try to get client_id from metrics, fallback to index if not available
+        client_id = m.get("client_id", f"client_{i}")
+        
         client_rows.append({
-            "Client": client_idx,
+            "Client": client_id,  # Use the actual client ID
             "Round": round_num,
             "Accuracy": acc,
             "Loss": loss,
