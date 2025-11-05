@@ -3,48 +3,56 @@ function create_charts_group
     %
     % Quick and rough script to churn out charts for
     % all attack rates in the CSCI-532 Group Project.
-    % Takes in 12 CSV files with the requisite sorted
-    % data with an equal amount of clients and rounds ran.
-    % Creates and saves 14 figures to the disk:
-    % - 6 about accuracy per client per round for each type
-    %   of attack
-    % - 6 of the same, but for loss instead of accuracy
-    % - 1 chart for the average/aggregate accuracy per round
-    % - 1 chart for the same, but for loss instead of accuracy
+    % It's the same as before, but now features the ability to
+    % plot PID-related artifacts!
     %
     % Author: Lily O'Carroll <lso2973>
-    % Date: 12 October, 2025
+    % Date: 5 November, 2025
     %
 
     % Close any already-open figures
     close all
 
     % Read in the file of each client's data.
-    clientDataWithoutAttack = readtable('results_0.csv');
+    clientDataWithoutAttack = readtable('results_0_pt3.csv');
 
     % Read in the file of the aggregate data.
-    aggregateDataWithoutAttack = readtable('aggregated_results_0.csv');
+    aggregateDataWithoutAttack = readtable('agg_results_0_pt3.csv');
+
+    % Now, read in for the versions including PID.
+    clientDataWithoutAttackPID = readtable('results_pid_0.csv');
+    aggregateDataWithoutAttackPID = readtable('agg_results_pid_0.csv');
 
     % Repeat the following for...
     % 10% attack rate
-    clientDataTenPercentAttack = readtable('results_10.csv');
-    aggregateDataTenPercentAttack = readtable('aggregated_results_10.csv');
+    clientDataTenPercentAttack = readtable('results_10_pt3.csv');
+    aggregateDataTenPercentAttack = readtable('agg_results_10_pt3.csv');
+    clientDataTenPercentAttackPID = readtable('results_pid_10.csv');
+    aggregateDataTenPercentAttackPID = readtable('agg_results_pid_10.csv');
 
     % 25% attack rate
-    clientDataTwentyFivePercentAttack = readtable('results_25.csv');
-    aggregateDataTwentyFivePercentAttack = readtable('aggregated_results_25.csv');
+    clientDataTwentyFivePercentAttack = readtable('results_25_pt3.csv');
+    aggregateDataTwentyFivePercentAttack = readtable('agg_results_25_pt3.csv');
+    clientDataTwentyFivePercentAttackPID = readtable('results_pid_25.csv');
+    aggregateDataTwentyFivePercentAttackPID = readtable('agg_results_pid_25.csv');
 
     % 50% attack rate
-    clientDataFiftyPercentAttack = readtable('results_50.csv');
-    aggregateDataFiftyPercentAttack = readtable('aggregated_results_50.csv');
+    clientDataFiftyPercentAttack = readtable('results_50_pt3.csv');
+    aggregateDataFiftyPercentAttack = readtable('agg_results_50_pt3.csv');
+    clientDataFiftyPercentAttackPID = readtable('results_pid_50.csv');
+    aggregateDataFiftyPercentAttackPID = readtable('agg_results_pid_50.csv');
 
     % 75% attack rate
-    clientDataSeventyFivePercentAttack = readtable('results_75.csv');
-    aggregateDataSeventyFivePercentAttack = readtable('aggregated_results_75.csv');
+    clientDataSeventyFivePercentAttack = readtable('results_75_pt3.csv');
+    aggregateDataSeventyFivePercentAttack = readtable('agg_results_75_pt3.csv');
+    clientDataSeventyFivePercentAttackPID = readtable('results_pid_75.csv');
+    aggregateDataSeventyFivePercentAttackPID = readtable('agg_results_pid_75.csv');
 
     % 100% attack rate
-    clientDataFullAttack = readtable('results_100.csv');
-    aggregateDataFullAttack = readtable('aggregated_results_100.csv');
+    clientDataFullAttack = readtable('results_100_pt3.csv');
+    aggregateDataFullAttack = readtable('agg_results_100_pt3.csv');
+    clientDataFullAttackPID = readtable('results_pid_100.csv');
+    aggregateDataFullAttackPID = readtable('agg_results_pid_100.csv');
 
     % How many rounds did these simulations run?
     maximum_rounds = max(aggregateDataWithoutAttack.Round);
@@ -155,13 +163,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (0% Label Flipping)";
-    title("Loss Per Round Per Client (0% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (0% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (0% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_0p_label_flipping.png");
+    saveas(gcf, "client_loss_0p_label_flipping_CFL.png");
 
     % 10% Attack
     client_0 = clientDataTenPercentAttack(1:maximum_rounds,:);
@@ -240,13 +248,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (10% Label Flipping)";
-    title("Loss Per Round Per Client (10% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (10% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (10% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_10p_label_flipping.png");
+    saveas(gcf, "client_loss_10p_label_flipping_CFL.png");
 
     % 25% Attack
     client_0 = clientDataTwentyFivePercentAttack(1:maximum_rounds,:);
@@ -325,13 +333,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (25% Label Flipping)";
-    title("Loss Per Round Per Client (25% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (25% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (25% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_25p_label_flipping.png");
+    saveas(gcf, "client_loss_25p_label_flipping_CFL.png");
 
     % 50% Attack
     client_0 = clientDataFiftyPercentAttack(1:maximum_rounds,:);
@@ -410,13 +418,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (50% Label Flipping)";
-    title("Loss Per Round Per Client (50% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (50% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (50% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_50p_label_flipping.png");
+    saveas(gcf, "client_loss_50p_label_flipping_CFL.png");
 
     % 75% Attack
     client_0 = clientDataSeventyFivePercentAttack(1:maximum_rounds,:);
@@ -495,13 +503,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (75% Label Flipping)";
-    title("Loss Per Round Per Client (75% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (75% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (75% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_75p_label_flipping.png");
+    saveas(gcf, "client_loss_75p_label_flipping_CFL.png");
 
     % 100% Attack
     client_0 = clientDataFullAttack(1:maximum_rounds,:);
@@ -580,13 +588,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Loss Per Round Per Client (100% Label Flipping)";
-    title("Loss Per Round Per Client (100% Label Flipping)");
+    currFig.Name = "Loss Per Round Per Client (100% Label Flipping, Conventional FL Model)";
+    title("Loss Per Round Per Client (100% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Loss')
-    saveas(gcf, "client_loss_100p_label_flipping.png");
+    saveas(gcf, "client_loss_100p_label_flipping_CFL.png");
 
 
     % Plot the evaluation accuracy per client over rounds.
@@ -668,13 +676,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (0% Label Flipping)";
-    title("Accuracy Per Round Per Client (0% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (0% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (0% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds])
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_0p_label_flipping.png");
+    saveas(gcf, "client_accuracy_0p_label_flipping_CFL.png");
 
     % 10% Attack
     client_0 = clientDataTenPercentAttack(1:maximum_rounds,:);
@@ -753,13 +761,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (10% Label Flipping)";
-    title("Accuracy Per Round Per Client (10% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (10% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (10% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_10p_label_flipping.png");
+    saveas(gcf, "client_accuracy_10p_label_flipping_CFL.png");
 
     % 25% Attack
     client_0 = clientDataTwentyFivePercentAttack(1:maximum_rounds,:);
@@ -838,13 +846,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (25% Label Flipping)";
-    title("Accuracy Per Round Per Client (25% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (25% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (25% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_25p_label_flipping.png");
+    saveas(gcf, "client_accuracy_25p_label_flipping_CFL.png");
 
     % 50% Attack
     client_0 = clientDataFiftyPercentAttack(1:maximum_rounds,:);
@@ -923,13 +931,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (50% Label Flipping)";
-    title("Accuracy Per Round Per Client (50% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (50% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (50% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_50p_label_flipping.png");
+    saveas(gcf, "client_accuracy_50p_label_flipping_CFL.png");
 
     % 75% Attack
     client_0 = clientDataSeventyFivePercentAttack(1:maximum_rounds,:);
@@ -1008,13 +1016,13 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (75% Label Flipping)";
-    title("Accuracy Per Round Per Client (75% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (75% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (75% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_75p_label_flipping.png");
+    saveas(gcf, "client_accuracy_75p_label_flipping_CFL.png");
 
     % 100% Attack
     client_0 = clientDataFullAttack(1:maximum_rounds,:);
@@ -1093,13 +1101,1039 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Accuracy Per Round Per Client (100% Label Flipping)";
-    title("Accuracy Per Round Per Client (100% Label Flipping)");
+    currFig.Name = "Accuracy Per Round Per Client (100% Label Flipping, Conventional FL Model)";
+    title("Accuracy Per Round Per Client (100% Label Flipping, Conventional FL Model)");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds]);
     xlabel('Round')
     ylabel('Accuracy')
-    saveas(gcf, "client_accuracy_100p_label_flipping.png");
+    saveas(gcf, "client_accuracy_100p_label_flipping_CFL.png");
+
+    %%% PID VARIANTS %%%
+
+    % No attack
+    client_0 = clientDataWithoutAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataWithoutAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataWithoutAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataWithoutAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataWithoutAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataWithoutAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataWithoutAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataWithoutAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataWithoutAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataWithoutAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataWithoutAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataWithoutAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataWithoutAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataWithoutAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataWithoutAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataWithoutAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataWithoutAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataWithoutAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataWithoutAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataWithoutAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (0% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (0% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_0p_label_flipping_PID.png");
+
+    % 10% Attack
+    client_0 = clientDataTenPercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataTenPercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataTenPercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataTenPercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataTenPercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataTenPercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataTenPercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataTenPercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataTenPercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataTenPercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataTenPercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataTenPercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataTenPercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataTenPercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataTenPercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataTenPercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataTenPercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataTenPercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataTenPercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataTenPercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (10% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (10% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_10p_label_flipping_PID.png");
+
+    % 25% Attack
+    client_0 = clientDataTwentyFivePercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataTwentyFivePercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataTwentyFivePercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataTwentyFivePercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataTwentyFivePercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataTwentyFivePercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataTwentyFivePercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataTwentyFivePercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataTwentyFivePercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataTwentyFivePercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataTwentyFivePercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataTwentyFivePercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataTwentyFivePercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataTwentyFivePercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataTwentyFivePercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataTwentyFivePercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataTwentyFivePercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataTwentyFivePercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataTwentyFivePercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataTwentyFivePercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (25% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (25% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_25p_label_flipping_PID.png");
+
+    % 50% Attack
+    client_0 = clientDataFiftyPercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataFiftyPercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataFiftyPercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataFiftyPercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataFiftyPercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataFiftyPercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataFiftyPercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataFiftyPercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataFiftyPercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataFiftyPercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataFiftyPercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataFiftyPercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataFiftyPercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataFiftyPercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataFiftyPercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataFiftyPercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataFiftyPercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataFiftyPercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataFiftyPercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataFiftyPercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (50% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (50% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_50p_label_flipping_PID.png");
+
+    % 75% Attack
+    client_0 = clientDataSeventyFivePercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataSeventyFivePercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataSeventyFivePercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataSeventyFivePercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataSeventyFivePercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataSeventyFivePercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataSeventyFivePercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataSeventyFivePercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataSeventyFivePercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataSeventyFivePercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataSeventyFivePercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataSeventyFivePercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataSeventyFivePercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataSeventyFivePercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataSeventyFivePercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataSeventyFivePercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataSeventyFivePercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataSeventyFivePercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataSeventyFivePercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataSeventyFivePercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (75% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (75% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_75p_label_flipping_PID.png");
+
+    % 100% Attack
+    client_0 = clientDataFullAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataFullAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataFullAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataFullAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataFullAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataFullAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataFullAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataFullAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataFullAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataFullAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataFullAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataFullAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataFullAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataFullAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataFullAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataFullAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataFullAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataFullAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataFullAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataFullAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Loss", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Loss", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Loss Per Round Per Client (100% Label Flipping, PID-Enhanced FL Model)";
+    title("Loss Per Round Per Client (100% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Loss')
+    saveas(gcf, "client_loss_100p_label_flipping_PID.png");
+
+
+    % Plot the evaluation accuracy per client over rounds.
+
+    % No attack
+    client_0 = clientDataWithoutAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataWithoutAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataWithoutAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataWithoutAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataWithoutAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataWithoutAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataWithoutAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataWithoutAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataWithoutAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataWithoutAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataWithoutAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataWithoutAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataWithoutAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataWithoutAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataWithoutAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataWithoutAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataWithoutAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataWithoutAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataWithoutAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataWithoutAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (0% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (0% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds])
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_0p_label_flipping_PID.png");
+
+    % 10% Attack
+    client_0 = clientDataTenPercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataTenPercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataTenPercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataTenPercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataTenPercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataTenPercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataTenPercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataTenPercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataTenPercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataTenPercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataTenPercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataTenPercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataTenPercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataTenPercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataTenPercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataTenPercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataTenPercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataTenPercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataTenPercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataTenPercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (10% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (10% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_10p_label_flipping_PID.png");
+
+    % 25% Attack
+    client_0 = clientDataTwentyFivePercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataTwentyFivePercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataTwentyFivePercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataTwentyFivePercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataTwentyFivePercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataTwentyFivePercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataTwentyFivePercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataTwentyFivePercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataTwentyFivePercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataTwentyFivePercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataTwentyFivePercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataTwentyFivePercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataTwentyFivePercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataTwentyFivePercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataTwentyFivePercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataTwentyFivePercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataTwentyFivePercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataTwentyFivePercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataTwentyFivePercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataTwentyFivePercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (25% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (25% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_25p_label_flipping_PID.png");
+
+    % 50% Attack
+    client_0 = clientDataFiftyPercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataFiftyPercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataFiftyPercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataFiftyPercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataFiftyPercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataFiftyPercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataFiftyPercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataFiftyPercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataFiftyPercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataFiftyPercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataFiftyPercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataFiftyPercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataFiftyPercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataFiftyPercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataFiftyPercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataFiftyPercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataFiftyPercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataFiftyPercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataFiftyPercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataFiftyPercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (50% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (50% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_50p_label_flipping_PID.png");
+
+    % 75% Attack
+    client_0 = clientDataSeventyFivePercentAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataSeventyFivePercentAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataSeventyFivePercentAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataSeventyFivePercentAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataSeventyFivePercentAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataSeventyFivePercentAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataSeventyFivePercentAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataSeventyFivePercentAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataSeventyFivePercentAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataSeventyFivePercentAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataSeventyFivePercentAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataSeventyFivePercentAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataSeventyFivePercentAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataSeventyFivePercentAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataSeventyFivePercentAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataSeventyFivePercentAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataSeventyFivePercentAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataSeventyFivePercentAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataSeventyFivePercentAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataSeventyFivePercentAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (75% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (75% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_75p_label_flipping_PID.png");
+
+    % 100% Attack
+    client_0 = clientDataFullAttackPID(1:maximum_rounds,:);
+    client_1 = clientDataFullAttackPID(maximum_rounds+1:c1Offset, :);
+    client_2 = clientDataFullAttackPID(c1Offset+1:c2Offset, :);
+    client_3 = clientDataFullAttackPID(c2Offset+1:c3Offset, :);
+    client_4 = clientDataFullAttackPID(c3Offset+1:c4Offset, :);
+    client_5 = clientDataFullAttackPID(c4Offset+1:c5Offset, :);
+    client_6 = clientDataFullAttackPID(c5Offset+1:c6Offset, :);
+    client_7 = clientDataFullAttackPID(c6Offset+1:c7Offset, :);
+    client_8 = clientDataFullAttackPID(c7Offset+1:c8Offset, :);
+    client_9 = clientDataFullAttackPID(c8Offset+1:c9Offset, :);
+    client_10 = clientDataFullAttackPID(c9Offset+1:c10Offset, :);
+    client_11 = clientDataFullAttackPID(c10Offset+1:c11Offset, :);
+    client_12 = clientDataFullAttackPID(c11Offset+1:c12Offset, :);
+    client_13 = clientDataFullAttackPID(c12Offset+1:c13Offset, :);
+    client_14 = clientDataFullAttackPID(c13Offset+1:c14Offset, :);
+    client_15 = clientDataFullAttackPID(c14Offset+1:c15Offset, :);
+    client_16 = clientDataFullAttackPID(c15Offset+1:c16Offset, :);
+    client_17 = clientDataFullAttackPID(c16Offset+1:c17Offset, :);
+    client_18 = clientDataFullAttackPID(c17Offset+1:c18Offset, :);
+    client_19 = clientDataFullAttackPID(c18Offset+1:c19Offset, :);
+
+    cmap = colormap(parula(20));
+    cmap(1,:);
+
+    figure
+    c0_plot = plot(client_0, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    hold on
+    c1_plot = plot(client_1, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c2_plot = plot(client_2, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c3_plot = plot(client_3, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", "red");
+    c4_plot = plot(client_4, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(5,:));
+    c5_plot = plot(client_5, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(6,:));
+    c6_plot = plot(client_6, "Round", "Accuracy", "LineWidth", 1 , ...
+        "Color", cmap(7,:));
+    c7_plot = plot(client_7, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(8,:));
+    c8_plot = plot(client_8, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(9,:));
+    c9_plot = plot(client_9, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(10,:));
+    c10_plot = plot(client_10, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(11,:));
+    c11_plot = plot(client_11, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(12,:));
+    c12_plot = plot(client_12, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(13,:));
+    c13_plot = plot(client_13, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(14,:));
+    c14_plot = plot(client_14, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(15,:));
+    c15_plot = plot(client_15, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(16,:));
+    c16_plot = plot(client_16, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(17,:));
+    c17_plot = plot(client_17, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(18,:));
+    c18_plot = plot(client_18, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(19,:));
+    c19_plot = plot(client_19, "Round", "Accuracy", "LineWidth", 1, ...
+        "Color", cmap(20,:));
+    hold off
+    legend([c0_plot, c1_plot, c2_plot, c3_plot, c4_plot, c5_plot, ...
+        c6_plot, c7_plot, c8_plot, c9_plot, c10_plot, c11_plot, ... 
+        c11_plot, c12_plot, c13_plot, c14_plot, c15_plot, ... 
+        c16_plot, c17_plot, c18_plot, c19_plot], clientLineNames, ...
+        "Location", "northeastoutside");
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Accuracy Per Round Per Client (100% Label Flipping, PID-Enhanced FL Model)";
+    title("Accuracy Per Round Per Client (100% Label Flipping, PID-Enhanced FL Model)");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds]);
+    xlabel('Round')
+    ylabel('Accuracy')
+    saveas(gcf, "client_accuracy_100p_label_flipping_PID.png");
+
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%% AGGREGATE %%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1134,15 +2168,15 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Average Loss Among Clients Over Rounds";
-    title("Average Loss Among Clients Over Rounds");
+    currFig.Name = "Average Loss Among Clients Over Rounds (Conventional FL Model)";
+    title("Average Loss Among Clients Over Rounds (Conventional FL Model)");
     legend([noAtk, tenAtk, twentyFiveAtk, fiftyAtk, seventyFiveAtk, fullAtk], ...
         aggregateLineNames, "Location", "northeastoutside");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds])
     xlabel('Round')
     ylabel('Aggregated Loss')
-    saveas(gcf, "aggregate_loss_over_rounds.png");
+    saveas(gcf, "aggregate_loss_over_rounds_CFL.png");
 
     % Plot the average evaluation accuracy among clients over 
     % rounds. This will combine the results of all attack types.
@@ -1168,14 +2202,83 @@ function create_charts_group
     ax = currFig.CurrentAxes;
     ax.XTick = unique(round(ax.XTick));
     ax.Interactions = [zoomInteraction panInteraction];
-    currFig.Name = "Average Evaluation Accuracy Among Clients Over Rounds";
-    title("Average Evaluation Accuracy Among Clients Over Rounds");
+    currFig.Name = "Average Evaluation Accuracy Among Clients Over Rounds (Conventional FL Model)";
+    title("Average Evaluation Accuracy Among Clients Over Rounds (Conventional FL Model)");
     legend([noAtk, tenAtk, twentyFiveAtk, fiftyAtk, seventyFiveAtk, fullAtk], ...
         aggregateLineNames, "Location", "northeastoutside");
     disableDefaultInteractivity(ax);
     xlim([1 maximum_rounds])
     xlabel('Round')
     ylabel('Aggregated Accuracy')
-    saveas(gcf, "aggregate_accuracy_over_rounds.png");
+    saveas(gcf, "aggregate_accuracy_over_rounds_CFL.png");
+
+    %%% PID VARIANTS %%%
+
+    figure
+    % Plot without an attack.
+    noAtk = plot(aggregateDataWithoutAttackPID, "Round", "AvgLoss", ...
+        'LineWidth', 2);
+
+    hold on
+    % Plot with all ranges of attack percentages.
+    tenAtk = plot(aggregateDataTenPercentAttackPID, "Round", "AvgLoss", ...
+        'LineWidth', 2);
+    twentyFiveAtk = plot(aggregateDataTwentyFivePercentAttackPID, "Round", ...
+        "AvgLoss", 'LineWidth', 2);
+    fiftyAtk = plot(aggregateDataFiftyPercentAttackPID, "Round", "AvgLoss", ...
+        'LineWidth', 2);
+    seventyFiveAtk = plot(aggregateDataSeventyFivePercentAttackPID, "Round", ...
+        "AvgLoss", 'LineWidth', 2);
+    fullAtk = plot(aggregateDataFullAttackPID, "Round", "AvgLoss", ...
+        'LineWidth', 2);
+    hold off
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Average Loss Among Clients Over Rounds (PID-Enhanced FL Model)";
+    title("Average Loss Among Clients Over Rounds (PID-Enhanced FL Model)");
+    legend([noAtk, tenAtk, twentyFiveAtk, fiftyAtk, seventyFiveAtk, fullAtk], ...
+        aggregateLineNames, "Location", "northeastoutside");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds])
+    xlabel('Round')
+    ylabel('Aggregated Loss')
+    saveas(gcf, "aggregate_loss_over_rounds_PID.png");
+
+    % Plot the average evaluation accuracy among clients over 
+    % rounds. This will combine the results of all attack types.
+    figure
+    % Plot without an attack.
+    noAtk = plot(aggregateDataWithoutAttack, "Round", "AvgAccuracy", ...
+        'LineWidth', 2);
+
+    hold on
+    % Plot with all ranges of attack percentages.
+    tenAtk = plot(aggregateDataTenPercentAttackPID, "Round", "AvgAccuracy", ...
+        'LineWidth', 2);
+    twentyFiveAtk = plot(aggregateDataTwentyFivePercentAttackPID, "Round", ...
+        "AvgAccuracy", 'LineWidth', 2);
+    fiftyAtk = plot(aggregateDataFiftyPercentAttackPID, "Round", "AvgAccuracy", ...
+        'LineWidth', 2);
+    seventyFiveAtk = plot(aggregateDataSeventyFivePercentAttackPID, "Round", ...
+        "AvgAccuracy", 'LineWidth', 2);
+    fullAtk = plot(aggregateDataFullAttackPID, "Round", "AvgAccuracy", ...
+        'LineWidth', 2);
+    hold off
+    currFig = gcf;
+    ax = currFig.CurrentAxes;
+    ax.XTick = unique(round(ax.XTick));
+    ax.Interactions = [zoomInteraction panInteraction];
+    currFig.Name = "Average Evaluation Accuracy Among Clients Over Rounds (PID-Enhanced FL Model)";
+    title("Average Evaluation Accuracy Among Clients Over Rounds (PID-Enhanced FL Model)");
+    legend([noAtk, tenAtk, twentyFiveAtk, fiftyAtk, seventyFiveAtk, fullAtk], ...
+        aggregateLineNames, "Location", "northeastoutside");
+    disableDefaultInteractivity(ax);
+    xlim([1 maximum_rounds])
+    xlabel('Round')
+    ylabel('Aggregated Accuracy')
+    saveas(gcf, "aggregate_accuracy_over_rounds_PID.png");
+
 
 end
