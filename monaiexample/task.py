@@ -118,16 +118,17 @@ ds = None
 partitioner = None
 
 # In task.py - maintain consistent poisoned dataset
-poisoned_ds_cache = None
+poisoned_ds_cache = {}
 
 def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     global ds, partitioner, poisoned_ds_cache
     
     if percent_flipped > 0.0:
-        if poisoned_ds_cache is None:
-            poisoned_ds_cache = label_flipping(percent_flipped)
+        key = percent_flipped
+        if key not in poisoned_ds_cache:
+            poisoned_ds_cache[key] = label_flipping(percent_flipped)
         partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = poisoned_ds_cache
+        partitioner.dataset = poisoned_ds_cache[key]
     else:
         # Use clean dataset
         if ds is None:
@@ -224,7 +225,7 @@ def _download_data():
         image_label_list.extend([i] * len(image_files[i]))
 
     # TOY RUN FOR TESTING
-    toy_size = 10000
+    toy_size = 1000
     indices = random.sample(range(len(image_file_list)), toy_size)
     image_file_list = [image_file_list[i] for i in indices]
     image_label_list = [image_label_list[i] for i in indices]

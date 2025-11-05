@@ -87,10 +87,14 @@ def server_fn(context: Context):
     # Define strategy using FedAvg
     fraction_fit = context.run_config["fraction-fit"]
     # Extend FedAvg to prune malicious clients using PID score
-    strategy = PIDFedAvg(k=0.5, ki=0.01, kd=0.1,
-        fraction_fit=fraction_fit,
-        evaluate_metrics_aggregation_fn=weighted_average,
-        initial_parameters=global_model_init,
+    strategy = PIDFedAvg(
+        model_fn=my_model_fn,
+        val_loader=server_val_loader,
+        device="cpu",
+        criterion=torch.nn.CrossEntropyLoss(),
+        k=2.0, ki=0.1, kd=1.0,
+        mad_multiplier=2.0, prune_percentile=90.0, start_pruning_round=3,
+        min_clients_to_prune=3
     )
 
     # TODO : uncomment to use without PID detection and pruning
