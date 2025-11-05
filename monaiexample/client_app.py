@@ -36,10 +36,13 @@ def client_fn(context: Context):
     batch_size = context.run_config["batch-size"]
     # added params for data poisoning
     # poison 4 out of the 20 total clients 
+   # In client_app.py - add debug output
     if partition_id < 4:
         percent_flipped = context.run_config.get("percent-flipped", 0.0)
+        print(f"🚨 Client {partition_id}: POISONED with {percent_flipped*100}% flipped labels")
     else:
         percent_flipped = 0.0
+        print(f"✅ Client {partition_id}: CLEAN dataset")
 
     trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped)
     net = load_model()

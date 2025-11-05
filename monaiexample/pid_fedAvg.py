@@ -3,25 +3,34 @@ from flwr.server.strategy import FedAvg
 import numpy as np
 from flwr.common import parameters_to_ndarrays
 
-# extend FedAvg to compute and log PID score
-# FedAvg defines how server aggregates model updates from clients
-# by extending, model updates can be computed and checked for poisoning
-
 class PIDFedAvg(FedAvg):
-    def __init__(self, k=1.0, ki=0.05, kd=0.5, threshold=0.01, **kwargs):
+    def __init__(self, k=1.5, ki=0.1, kd=0.8, **kwargs):
         super().__init__(**kwargs)
-        self.k = k
-        self.ki = ki
-        self.kd = kd
-        self.threshold = threshold
+        self.k = k  # Proportional gain
+        self.ki = ki  # Integral gain  
+        self.kd = kd  # Derivative gain
         self.client_history = {}
+        self.client_name_map = {}
+        self.client_counter = 0
 
-    
     def aggregate_fit(self, round, results, failures):
+        if not results:
+            return super().aggregate_fit(round, results, failures)
         
         final_weights = []
+        client_ids = []
+        
+        # Process client updates and create mapping
         for client_proxy, fit_res in results:
-            # convert params object to an array to iterate over
+            cid = client_proxy.cid
+            client_ids.append(cid)
+            
+            # Map to simple names for logging
+            if cid not in self.client_name_map:
+                self.client_name_map[cid] = f"client{self.client_counter}"
+                self.client_counter += 1
+            
+            # Convert parameters to numpy arrays
             ndarrays = parameters_to_ndarrays(fit_res.parameters)
             flattened_params = []
             
@@ -31,47 +40,76 @@ class PIDFedAvg(FedAvg):
             
             final_weights.append(np.array(flattened_params))
 
-
+        # Calculate centroid (average model)
         centroid = np.mean(final_weights, axis=0)
+        centroid_norm = np.linalg.norm(centroid)
+        
+        # Avoid division by zero
+        if centroid_norm == 0:
+            centroid_norm = 1e-10
 
+        # Calculate distances and PID scores
         distances = []
-        for weights in final_weights:
-            distance = np.linalg.norm(weights - centroid) / np.linalg.norm(centroid)
+        current_pids = []
+        
+        for i, weights in enumerate(final_weights):
+            cid = client_ids[i]
+            
+            # Calculate normalized distance from centroid
+            distance = np.linalg.norm(weights - centroid) / centroid_norm
+            #distance = np.linalg.norm(weights - centroid) / (np.linalg.norm(centroid) + 1e-8)  # Add epsilon
             distances.append(distance)
-
-        pids = []
-        for cid, dist in zip([r[0].cid for r in results], distances):
-            prev_state = self.client_history.get(cid, {"integral": 0.0, "prev_dist": 0.0, "PID": 0.0})
-
-            P = self.k * dist
-            I = prev_state["integral"] + self.ki * dist
-            D = self.kd * (dist - prev_state["prev_dist"])
-
+            
+            # Get previous state or initialize
+            prev_state = self.client_history.get(cid, {
+                "integral": 0.0, 
+                "prev_dist": 0.0, 
+                "PID": 0.0
+            })
+            
+            # PID calculation
+            P = self.k * distance  # Proportional term
+            I = prev_state["integral"] + self.ki * distance  # Integral term
+            D = self.kd * (distance - prev_state["prev_dist"])  # Derivative term
+            
             PID_value = P + I + D
+            
+            # Update history
+            self.client_history[cid] = {
+                "integral": I, 
+                "prev_dist": distance, 
+                "PID": PID_value
+            }
+            
+            current_pids.append(PID_value)
 
-            self.client_history[cid] = {"integral": I, "prev_dist": dist, "PID": PID_value}
-
-            pids.append((cid, PID_value))
-
-        # get all PIDS to compute new thr for pruning
-        pids = [self.client_history[client_proxy.cid]["PID"] for client_proxy, _ in results]
-
-        mean_pid = np.mean(pids)
-        std_pid = np.std(pids)
-        new_thr = mean_pid - std_pid
-
-
+        # Calculate adaptive threshold for pruning (HIGH PID = suspicious)
+        mean_pid = np.mean(current_pids)
+        std_pid = np.std(current_pids)
+        
+        # Prune clients with PID scores ABOVE threshold (outliers)
+        threshold = mean_pid + 1.5 * std_pid  # More aggressive threshold
+        
         clean_clients = []
-        for client_proxy, fit_res in results:
-            cid = client_proxy.cid
-            if self.client_history[cid]["PID"] <= new_thr:
-                # do not append to final list
-                continue
+        pruned_clients = []
+        
+        for i, (client_proxy, fit_res) in enumerate(results):
+            cid = client_ids[i]
+            client_pid = current_pids[i]
+            
+            if client_pid > threshold:
+                pruned_clients.append(self.client_name_map[cid])
             else:
                 clean_clients.append((client_proxy, fit_res))
 
-
+        # Logging
+        if pruned_clients:
+            print(f"\tRound {round}: Pruned suspicious clients: {', '.join(pruned_clients)}")
+            print(f"\tRound {round}: PID threshold = {threshold:.6f}")
+            # Optional: Print PID scores for debugging
+            for i, cid in enumerate(client_ids):
+                print(f"\t  {self.client_name_map[cid]}: PID = {current_pids[i]:.6f}, Distance = {distances[i]:.6f}")
         
         print(f"\tRound {round}: Retaining {len(clean_clients)} / {len(results)} clients")
-
+        
         return super().aggregate_fit(round, clean_clients, failures)
