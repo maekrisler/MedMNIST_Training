@@ -87,7 +87,7 @@ def server_fn(context: Context):
     # Define strategy using FedAvg
     fraction_fit = context.run_config["fraction-fit"]
     # Extend FedAvg to prune malicious clients using PID score
-    strategy = PIDFedAvg(k=1.0, ki=0.05, kd=0.5, threshold=0.01,
+    strategy = PIDFedAvg(k=1.0, ki=0.01, kd=0.1, threshold=0.01,
         fraction_fit=fraction_fit,
         evaluate_metrics_aggregation_fn=weighted_average,
         initial_parameters=global_model_init,

@@ -19,6 +19,9 @@ class PIDFedAvg(FedAvg):
     
     def aggregate_fit(self, round, results, failures):
         
+        if round < 5:
+            return super().aggregate_fit(round, results, failures)
+
         final_weights = []
         for client_proxy, fit_res in results:
             # convert params object to an array to iterate over
@@ -36,7 +39,7 @@ class PIDFedAvg(FedAvg):
 
         distances = []
         for weights in final_weights:
-            distance = np.linalg.norm(weights - centroid) / np.linalg.norm(centroid)
+            distance = 1 - np.dot(weights, centroid) / (np.linalg.norm(weights) * np.linalg.norm(centroid) + 1e-8)
             distances.append(distance)
 
         pids = []
@@ -44,7 +47,7 @@ class PIDFedAvg(FedAvg):
             prev_state = self.client_history.get(cid, {"integral": 0.0, "prev_dist": 0.0, "PID": 0.0})
 
             P = self.k * dist
-            I = prev_state["integral"] + self.ki * dist
+            I = 0.9 * prev_state["integral"] + self.ki * dist  # exponential decay
             D = self.kd * (dist - prev_state["prev_dist"])
 
             PID_value = P + I + D
@@ -58,20 +61,31 @@ class PIDFedAvg(FedAvg):
 
         mean_pid = np.mean(pids)
         std_pid = np.std(pids)
-        new_thr = mean_pid - std_pid
-
+        threshold = mean_pid + std_pid  # instead of mean - std
 
         clean_clients = []
         for client_proxy, fit_res in results:
             cid = client_proxy.cid
-            if self.client_history[cid]["PID"] <= new_thr:
-                # do not append to final list
+            if self.client_history[cid]["PID"] > threshold:
+                # prune suspicious clients
                 continue
-            else:
-                clean_clients.append((client_proxy, fit_res))
+            clean_clients.append((client_proxy, fit_res))
 
-
-        
         print(f"\tRound {round}: Retaining {len(clean_clients)} / {len(results)} clients")
+        # Identify pruned clients by index order in this round
+        all_cids = [client_proxy.cid for client_proxy, _ in results]
+        kept_cids = [client_proxy.cid for client_proxy, _ in clean_clients]
+        pruned_cids = [cid for cid in all_cids if cid not in kept_cids]
+
+        # Map to readable client names like "client0", "client1", etc.
+        cid_to_simple = {cid: f"client{i}" for i, cid in enumerate(all_cids)}
+        pruned_list = [cid_to_simple[cid] for cid in pruned_cids]
+        kept_list = [cid_to_simple[cid] for cid in kept_cids]
+
+        print(f"\tRound {round}: Retaining {len(clean_clients)} / {len(results)} clients")
+        if pruned_list:
+            print(f"\tPruned: {', '.join(pruned_list)}")
+        else:
+            print("\tPruned: None")
 
         return super().aggregate_fit(round, clean_clients, failures)
