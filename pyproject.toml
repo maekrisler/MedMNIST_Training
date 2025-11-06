@@ -32,7 +32,7 @@ num-server-rounds = 20
 fraction-fit = 1
 batch-size = 128
 # set the level of data flipping
-percent-flipped = 1
+percent-flipped = 0.5
 
 [tool.flwr.federations]
 default = "local-simulation"

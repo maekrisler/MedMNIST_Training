@@ -116,29 +116,28 @@ def get_apply_transforms_fn(transforms_to_apply):
 
 ds = None
 partitioner = None
-
+clean_ds = None  # Add this
 
 def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     """Download dataset, partition it and return data loader of specific partition."""
-    # Set dataset and partitioner only once
-    global ds, partitioner
-    if percent_flipped == 0.0:
-        if ds is None:
-            # load clean dataset once
-            image_file_list, image_label_list = _download_data()
-            ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
-            partitioner = IidPartitioner(num_partitions)
-            partitioner.dataset = ds
-    else:
-        # build poisoned dataset fresh for each poisoned client
-        poisoned_ds = label_flipping(percent_flipped)
+    global ds, partitioner, clean_ds
+    
+    # Always use clean dataset for partitioning structure
+    if clean_ds is None:
+        image_file_list, image_label_list = _download_data()
+        clean_ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
         partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = poisoned_ds
-
-
+        partitioner.dataset = clean_ds
+    
+    # Get the base partition
     partition = partitioner.load_partition(partition_id)
-
-    # Take a fraction of the partition (e.g., 10%)
+    
+    # Apply label flipping if this is a malicious client
+    if percent_flipped > 0.0:
+        print(f"🚨 Creating poisoned dataset for client {partition_id} with {percent_flipped*100}% labels flipped")
+        partition = _apply_label_flipping_to_partition(partition, percent_flipped)
+    
+    # Take a fraction of the partition (e.g., 50%)
     subset_fraction = 0.5
     subset_size = int(len(partition) * subset_fraction)
     subset_indices = random.sample(range(len(partition)), subset_size)
@@ -164,6 +163,26 @@ def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     val_loader = monai.data.DataLoader(partition_val, batch_size=batch_size)
 
     return train_loader, val_loader
+
+def _apply_label_flipping_to_partition(partition, percent_flipped):
+    """Apply label flipping to a specific partition."""
+    labels = partition["label"]
+    num_classes = len(set(labels))
+    
+    # flip percent_flipped % of the labels to a different class
+    num_to_flip = int(percent_flipped * len(partition))
+    indices = random.sample(range(len(partition)), num_to_flip)
+    
+    # copy the labels and flip the selected ones
+    flipped = labels.copy()
+    for i in indices:
+        original = flipped[i]
+        class_options = [label for label in range(num_classes) if label != original]
+        flipped[i] = random.choice(class_options)
+    
+    # Create new partition with flipped labels
+    poisoned_partition = partition.remove_columns("label").add_column("label", flipped)
+    return poisoned_partition
 
 
 def label_flipping(percent_flipped):

@@ -27,17 +27,14 @@ class FlowerClient(NumPyClient):
 
 
 def client_fn(context: Context):
-
-    # get configurations from pyproject.toml file
-    # partition id defines what client is sampling the data
     partition_id = context.node_config["partition-id"]
     num_partitions = context.node_config["num-partitions"]
-
     batch_size = context.run_config["batch-size"]
-    # added params for data poisoning
-    # poison 4 out of the 20 total clients 
-    if partition_id < 4:
-        percent_flipped = context.run_config.get("percent-flipped", 0.0)
+    
+    # Increase poisoning strength for malicious clients
+    if partition_id < 4:  # First 4 clients are malicious
+        percent_flipped = context.run_config.get("percent-flipped", 0.8)  # Increase to 80%
+        print(f"🚨 MALICIOUS CLIENT {partition_id}: Using {percent_flipped*100}% poisoned data")
     else:
         percent_flipped = 0.0
 
