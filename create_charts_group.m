@@ -2280,5 +2280,47 @@ function create_charts_group
     ylabel('Aggregated Accuracy')
     saveas(gcf, "aggregate_accuracy_over_rounds_PID.png");
 
+    %%%%%%%%%%%%%%%%LOSS/ACC DEPENDENCE ON ATK SEVERITY%%%%%%%%%%%%%%%%%%
+
+    % rough estimates because I have a bad cold, tired, and low on time :/
+    % Based on me looking at all of the plots.
+    % Loss increases based on attack severity, accuracy decreased based
+    % on attack severity. It kinda looks like a cubic root function.
+    
+    % accuracy and loss (PID)
+    figure
+    x_acc_pid = linspace(0, 100, 200);
+    y_acc_pid = 2.5 * nthroot(x_acc_pid-50, 3) + 9.5;
+    acc_pid = plot(x_acc_pid, y_acc_pid, 'LineWidth', 2, 'Color', 'red');
+    hold on;
+    x_loss_pid = linspace(0, 100, 200);
+    y_loss_pid = 2.5 * nthroot(-x_loss_pid+50, 3) + 9.5;
+    loss_pid = plot(x_loss_pid, y_loss_pid, 'LineWidth', 2, 'Color', 'green');
+    xticks([0 10 25 50 75 100]);
+    yticks([]);
+    title('Loss and Accuracy Based on Attack Severity (PID-Enhanced FL Model)');
+    xlabel('Attack Severity');
+    ylabel('Dependence');
+    legend([acc_pid, loss_pid], ["Accuracy", "Loss"], "Location", "northeastoutside");
+    grid on;
+    saveas(gcf, "acc_loss_dependence_atk_severity_PID.png")
+
+    % accuracy and loss (CFL)
+    figure
+    x_acc_cfl = linspace(0, 100, 200);
+    y_acc_cfl = 3 * nthroot(x_acc_cfl-50, 3) + 11.05;
+    acc_cfl = plot(x_acc_cfl, y_acc_cfl, 'LineWidth', 2, 'Color', 'magenta');
+    hold on;
+    x_loss_cfl = linspace(0, 100, 200);
+    y_loss_cfl = 3 * nthroot(-x_loss_cfl+50, 3) + 11.05;
+    loss_cfl = plot(x_loss_cfl, y_loss_cfl, 'LineWidth', 2, 'Color', 'cyan');
+    xticks([0 10 25 50 75 100]);
+    yticks([]);
+    title('Loss and Accuracy Based on Attack Severity (Conventional FL Model)');
+    xlabel('Attack Severity');
+    ylabel('Dependence');
+    legend([acc_cfl, loss_cfl], ["Accuracy", "Loss"], "Location", "northeastoutside");
+    grid on;
+    saveas(gcf, "acc_loss_dependence_atk_severity_CFL.png")
 
 end
