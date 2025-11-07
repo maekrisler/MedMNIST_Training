@@ -7,52 +7,52 @@ function create_charts_group
     % plot PID-related artifacts and severity plots.
     %
     % Author: Lily O'Carroll <lso2973>
-    % Date: 5 November, 2025
+    % Date: 6 November, 2025
     %
 
     % Close any already-open figures
     close all
 
     % Read in the file of each client's data.
-    clientDataWithoutAttack = readtable('results_0_pt3.csv');
+    clientDataWithoutAttack = readtable('client_results/results_0_pt3.csv');
 
     % Read in the file of the aggregate data.
-    aggregateDataWithoutAttack = readtable('agg_results_0_pt3.csv');
+    aggregateDataWithoutAttack = readtable('agg_results/agg_results_0_pt3.csv');
 
     % Now, read in for the versions including PID.
-    clientDataWithoutAttackPID = readtable('results_pid_0.csv');
-    aggregateDataWithoutAttackPID = readtable('agg_results_pid_0.csv');
+    clientDataWithoutAttackPID = readtable('client_results/results_pid_0.csv');
+    aggregateDataWithoutAttackPID = readtable('agg_results/agg_results_pid_0.csv');
 
     % Repeat the following for...
     % 10% attack rate
-    clientDataTenPercentAttack = readtable('results_10_pt3.csv');
-    aggregateDataTenPercentAttack = readtable('agg_results_10_pt3.csv');
-    clientDataTenPercentAttackPID = readtable('results_pid_10.csv');
-    aggregateDataTenPercentAttackPID = readtable('agg_results_pid_10.csv');
+    clientDataTenPercentAttack = readtable('client_results/results_10_pt3.csv');
+    aggregateDataTenPercentAttack = readtable('agg_results/agg_results_10_pt3.csv');
+    clientDataTenPercentAttackPID = readtable('client_results/results_pid_10.csv');
+    aggregateDataTenPercentAttackPID = readtable('agg_results/agg_results_pid_10.csv');
 
     % 25% attack rate
-    clientDataTwentyFivePercentAttack = readtable('results_25_pt3.csv');
-    aggregateDataTwentyFivePercentAttack = readtable('agg_results_25_pt3.csv');
-    clientDataTwentyFivePercentAttackPID = readtable('results_pid_25.csv');
-    aggregateDataTwentyFivePercentAttackPID = readtable('agg_results_pid_25.csv');
+    clientDataTwentyFivePercentAttack = readtable('client_results/results_25_pt3.csv');
+    aggregateDataTwentyFivePercentAttack = readtable('agg_results/agg_results_25_pt3.csv');
+    clientDataTwentyFivePercentAttackPID = readtable('client_results/results_pid_25.csv');
+    aggregateDataTwentyFivePercentAttackPID = readtable('agg_results/agg_results_pid_25.csv');
 
     % 50% attack rate
-    clientDataFiftyPercentAttack = readtable('results_50_pt3.csv');
-    aggregateDataFiftyPercentAttack = readtable('agg_results_50_pt3.csv');
-    clientDataFiftyPercentAttackPID = readtable('results_pid_50.csv');
-    aggregateDataFiftyPercentAttackPID = readtable('agg_results_pid_50.csv');
+    clientDataFiftyPercentAttack = readtable('client_results/results_50_pt3.csv');
+    aggregateDataFiftyPercentAttack = readtable('agg_results/agg_results_50_pt3.csv');
+    clientDataFiftyPercentAttackPID = readtable('client_results/results_pid_50.csv');
+    aggregateDataFiftyPercentAttackPID = readtable('agg_results/agg_results_pid_50.csv');
 
     % 75% attack rate
-    clientDataSeventyFivePercentAttack = readtable('results_75_pt3.csv');
-    aggregateDataSeventyFivePercentAttack = readtable('agg_results_75_pt3.csv');
-    clientDataSeventyFivePercentAttackPID = readtable('results_pid_75.csv');
-    aggregateDataSeventyFivePercentAttackPID = readtable('agg_results_pid_75.csv');
+    clientDataSeventyFivePercentAttack = readtable('client_results/results_75_pt3.csv');
+    aggregateDataSeventyFivePercentAttack = readtable('agg_results/agg_results_75_pt3.csv');
+    clientDataSeventyFivePercentAttackPID = readtable('client_results/results_pid_75.csv');
+    aggregateDataSeventyFivePercentAttackPID = readtable('agg_results/agg_results_pid_75.csv');
 
     % 100% attack rate
-    clientDataFullAttack = readtable('results_100_pt3.csv');
-    aggregateDataFullAttack = readtable('agg_results_100_pt3.csv');
-    clientDataFullAttackPID = readtable('results_pid_100.csv');
-    aggregateDataFullAttackPID = readtable('agg_results_pid_100.csv');
+    clientDataFullAttack = readtable('client_results/results_100_pt3.csv');
+    aggregateDataFullAttack = readtable('agg_results/agg_results_100_pt3.csv');
+    clientDataFullAttackPID = readtable('client_results/results_pid_100.csv');
+    aggregateDataFullAttackPID = readtable('agg_results/agg_results_pid_100.csv');
 
     % How many rounds did these simulations run?
     maximum_rounds = max(aggregateDataWithoutAttack.Round);
