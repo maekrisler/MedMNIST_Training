@@ -11,7 +11,6 @@ client_path = os.path.join(project_dir, "monaiexample", "client_app.py")
 server = subprocess.Popen(["python3", "-m", "monaiexample.server_app"])
 
 
-# print(server.stdout.read().decode())
 
 # start clients
 # TODO: get cmd line args for data flippingfl

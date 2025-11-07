@@ -70,15 +70,10 @@ class PIDFedAvg(FedAvg):
             
             if self.client_history[cid]["PID"] >= new_thr:
                 pruned_clients.append(simple_cid)
-                print(f"   🔴 Pruned Client {simple_cid} - PID: {self.client_history[cid]['PID']:.4f}")
             else:
                 clean_clients.append((client_proxy, fit_res))
-                print(f"   ✅ Kept Client {simple_cid} - PID: {self.client_history[cid]['PID']:.4f}")
 
-        print(f"Round {round}: Pruned {len(pruned_clients)} clients: {pruned_clients}")
-
-
-        
+        print(f"Round {round}: Pruned {len(pruned_clients)} clients: {pruned_clients}")        
         print(f"\tRound {round}: Retaining {len(clean_clients)} / {len(results)} clients")
 
         return super().aggregate_fit(round, clean_clients, failures)

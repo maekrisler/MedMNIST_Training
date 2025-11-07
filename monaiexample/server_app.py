@@ -13,13 +13,22 @@ from monaiexample.task import get_params, load_model
 # from task import get_params, load_model
 
 
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-AGG_CSV = f"results_{timestamp}.csv"          # Aggregated (global) results
-CLIENT_CSV = f"client_metrics_{timestamp}.csv"  # Per-client results
+# Define output folders
+agg_dir = os.path.join(os.getcwd(), "agg_results")
+client_dir = os.path.join(os.getcwd(), "client_results")
 
-# Initialize both CSVs
+# Create folders if they don't exist
+os.makedirs(agg_dir, exist_ok=True)
+os.makedirs(client_dir, exist_ok=True)
+
+# Define full file paths
+AGG_CSV = os.path.join(agg_dir, "aggregated_results.csv")       # Aggregated (global) results
+CLIENT_CSV = os.path.join(client_dir, "per_client_results.csv")  # Per-client results
+
+# Initialize both CSVs if they don’t exist
 if not os.path.exists(AGG_CSV):
     pd.DataFrame(columns=["Round", "AvgAccuracy", "AvgLoss"]).to_csv(AGG_CSV, index=False)
+
 if not os.path.exists(CLIENT_CSV):
     pd.DataFrame(columns=["Client", "Round", "Accuracy", "Loss"]).to_csv(CLIENT_CSV, index=False)
 

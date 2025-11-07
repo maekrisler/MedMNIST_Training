@@ -156,6 +156,8 @@ def load_data(num_partitions, partition_id, batch_size, percent_flipped):
 
 def label_flipping(ds, percent_flipped):
     """Flip labels for data poisoning attack."""
+
+    # flip labels on the current dataset, don't redo if already done
     labels = ds["label"]
     num_classes = len(set(labels))
 
@@ -168,6 +170,7 @@ def label_flipping(ds, percent_flipped):
         new_label_options = [label for label in range(num_classes) if label != original]
         flipped_labels[i] = random.choice(new_label_options)
 
+    # remap flipped labels
     ds = ds.remove_columns("label").add_column("label", flipped_labels)
     
     return ds
