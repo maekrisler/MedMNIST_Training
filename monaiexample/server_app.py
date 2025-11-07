@@ -57,7 +57,7 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
         loss = m.get("loss", None)
         
         # Try to get client_id from metrics, fallback to index if not available
-        client_id = m.get("client_id", f"client_{i}")
+        client_id = m.get("client_id", i)
         
         client_rows.append({
             "Client": client_id,  # Use the actual client ID
@@ -99,18 +99,18 @@ def server_fn(context: Context):
     # Define strategy using FedAvg
     fraction_fit = context.run_config["fraction-fit"]
     # Extend FedAvg to prune malicious clients using PID score
-    # strategy = PIDFedAvg(k=1.0, ki=0.05, kd=0.5, threshold=0.01,
-    #     fraction_fit=fraction_fit,
-    #     evaluate_metrics_aggregation_fn=weighted_average,
-    #     initial_parameters=global_model_init,
-    # )
-
-    # TODO : uncomment to use without PID detection and pruning
-    strategy = FedAvg(
+    strategy = PIDFedAvg(k=1.0, ki=0.05, kd=0.5, threshold=0.01,
         fraction_fit=fraction_fit,
         evaluate_metrics_aggregation_fn=weighted_average,
         initial_parameters=global_model_init,
     )
+
+    # TODO : uncomment to use without PID detection and pruning
+    # strategy = FedAvg(
+    #     fraction_fit=fraction_fit,
+    #     evaluate_metrics_aggregation_fn=weighted_average,
+    #     initial_parameters=global_model_init,
+    # )
 
     # Configure server rounds
     num_rounds = context.run_config["num-server-rounds"]

@@ -66,7 +66,7 @@ class PIDFedAvg(FedAvg):
 
         for i, (client_proxy, fit_res) in enumerate(results):
             cid = client_proxy.cid
-            simple_cid = f"client_{i}"  # This matches CSV indexing
+            simple_cid = i  # This matches CSV indexing
             
             if self.client_history[cid]["PID"] >= new_thr:
                 pruned_clients.append(simple_cid)
