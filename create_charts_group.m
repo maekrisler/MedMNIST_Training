@@ -4,7 +4,7 @@ function create_charts_group
     % Quick and rough script to churn out charts for
     % all attack rates in the CSCI-532 Group Project.
     % It's the same as before, but now features the ability to
-    % plot PID-related artifacts!
+    % plot PID-related artifacts and severity plots.
     %
     % Author: Lily O'Carroll <lso2973>
     % Date: 5 November, 2025
@@ -56,6 +56,37 @@ function create_charts_group
 
     % How many rounds did these simulations run?
     maximum_rounds = max(aggregateDataWithoutAttack.Round);
+
+    % For severity plots
+    sevNoAtkLoss = aggregateDataWithoutAttack.AvgLoss(maximum_rounds);
+    sevNoAtkLossPID = aggregateDataWithoutAttackPID.AvgLoss(maximum_rounds);
+    sevNoAtkAcc = aggregateDataWithoutAttack.AvgAccuracy(maximum_rounds);
+    sevNoAtkAccPID = aggregateDataWithoutAttack.AvgAccuracy(maximum_rounds);
+
+    sevTenAtkLoss = aggregateDataTenPercentAttack.AvgLoss(maximum_rounds);
+    sevTenAtkLossPID = aggregateDataTenPercentAttackPID.AvgLoss(maximum_rounds);
+    sevTenAtkAcc = aggregateDataTenPercentAttack.AvgAccuracy(maximum_rounds);
+    sevTenAtkAccPID = aggregateDataTenPercentAttackPID.AvgAccuracy(maximum_rounds);
+
+    sevTwentyFiveAtkLoss = aggregateDataTwentyFivePercentAttack.AvgLoss(maximum_rounds);
+    sevTwentyFiveAtkLossPID = aggregateDataTwentyFivePercentAttackPID.AvgLoss(maximum_rounds);
+    sevTwentyFiveAtkAcc = aggregateDataTwentyFivePercentAttack.AvgAccuracy(maximum_rounds);
+    sevTwentyFiveAtkAccPID = aggregateDataTwentyFivePercentAttackPID.AvgAccuracy(maximum_rounds);
+
+    sevFiftyAtkLoss = aggregateDataFiftyPercentAttack.AvgLoss(maximum_rounds);
+    sevFiftyAtkLossPID = aggregateDataFiftyPercentAttackPID.AvgLoss(maximum_rounds);
+    sevFiftyAtkAcc = aggregateDataFiftyPercentAttack.AvgAccuracy(maximum_rounds);
+    sevFiftyAtkAccPID = aggregateDataFiftyPercentAttackPID.AvgAccuracy(maximum_rounds);
+
+    sevSeventyFiveAtkLoss = aggregateDataSeventyFivePercentAttack.AvgLoss(maximum_rounds);
+    sevSeventyFiveAtkLossPID = aggregateDataSeventyFivePercentAttackPID.AvgLoss(maximum_rounds);
+    sevSeventyFiveAtkAcc = aggregateDataSeventyFivePercentAttack.AvgAccuracy(maximum_rounds);
+    sevSeventyFiveAtkAccPID = aggregateDataSeventyFivePercentAttackPID.AvgAccuracy(maximum_rounds);
+
+    sevFullAtkLoss = aggregateDataFullAttack.AvgLoss(maximum_rounds);
+    sevFullAtkLossPID = aggregateDataFullAttackPID.AvgLoss(maximum_rounds);
+    sevFullAtkAcc = aggregateDataFullAttack.AvgAccuracy(maximum_rounds);
+    sevFullAtkAccPID = aggregateDataFullAttack.AvgAccuracy(maximum_rounds);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%% PER-CLIENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -2282,45 +2313,43 @@ function create_charts_group
 
     %%%%%%%%%%%%%%%%LOSS/ACC DEPENDENCE ON ATK SEVERITY%%%%%%%%%%%%%%%%%%
 
-    % rough estimates because I have a bad cold, tired, and low on time :/
-    % Based on me looking at all of the plots.
-    % Loss increases based on attack severity, accuracy decreased based
-    % on attack severity. It kinda looks like a cubic root function.
-    
-    % accuracy and loss (PID)
     figure
-    x_acc_pid = linspace(0, 100, 200);
-    y_acc_pid = 2.5 * nthroot(x_acc_pid-50, 3) + 9.5;
-    acc_pid = plot(x_acc_pid, y_acc_pid, 'LineWidth', 2, 'Color', 'red');
-    hold on;
-    x_loss_pid = linspace(0, 100, 200);
-    y_loss_pid = 2.5 * nthroot(-x_loss_pid+50, 3) + 9.5;
-    loss_pid = plot(x_loss_pid, y_loss_pid, 'LineWidth', 2, 'Color', 'green');
-    xticks([0 10 25 50 75 100]);
-    yticks([]);
-    title('Loss and Accuracy Based on Attack Severity (PID-Enhanced FL Model)');
-    xlabel('Attack Severity');
-    ylabel('Dependence');
-    legend([acc_pid, loss_pid], ["Accuracy", "Loss"], "Location", "northeastoutside");
-    grid on;
-    saveas(gcf, "acc_loss_dependence_atk_severity_PID.png")
+    % severities
+    x = [0, 10, 25, 50, 75, 100];
+    % cfl
+    y_loss_cfl = [sevNoAtkLoss, sevTenAtkLoss, sevTwentyFiveAtkLoss, sevFiftyAtkLoss, ...
+        sevSeventyFiveAtkLoss, sevFullAtkLoss];
+    y_acc_cfl = [sevNoAtkAcc, sevTenAtkAcc, sevTwentyFiveAtkAcc, sevFiftyAtkAcc, ...
+        sevSeventyFiveAtkAcc, sevFullAtkAcc];
+    % pid
+    y_loss_pid = [sevNoAtkLossPID, sevTenAtkLossPID, sevTwentyFiveAtkLossPID, sevFiftyAtkLossPID, ...
+        sevSeventyFiveAtkLossPID, sevFullAtkLossPID];
+    y_acc_pid = [sevNoAtkAccPID, sevTenAtkAccPID, sevTwentyFiveAtkAccPID, sevFiftyAtkAccPID, ...
+        sevSeventyFiveAtkAccPID, sevFullAtkAccPID];
 
-    % accuracy and loss (CFL)
-    figure
-    x_acc_cfl = linspace(0, 100, 200);
-    y_acc_cfl = 3 * nthroot(x_acc_cfl-50, 3) + 11.05;
-    acc_cfl = plot(x_acc_cfl, y_acc_cfl, 'LineWidth', 2, 'Color', 'magenta');
+    % cfl
+    loss_cfl = plot(x, y_loss_cfl, 'LineWidth', 2, 'Color', 'magenta');
     hold on;
-    x_loss_cfl = linspace(0, 100, 200);
-    y_loss_cfl = 3 * nthroot(-x_loss_cfl+50, 3) + 11.05;
-    loss_cfl = plot(x_loss_cfl, y_loss_cfl, 'LineWidth', 2, 'Color', 'cyan');
+    acc_cfl = plot(x, y_acc_cfl, 'LineWidth', 2, 'Color', 'cyan');
     xticks([0 10 25 50 75 100]);
-    yticks([]);
     title('Loss and Accuracy Based on Attack Severity (Conventional FL Model)');
     xlabel('Attack Severity');
     ylabel('Dependence');
-    legend([acc_cfl, loss_cfl], ["Accuracy", "Loss"], "Location", "northeastoutside");
+    legend([loss_cfl, acc_cfl], ["Loss", "Accuracy"], 'Location', 'northeastoutside');
     grid on;
-    saveas(gcf, "acc_loss_dependence_atk_severity_CFL.png")
+    saveas(gcf, "loss_acc_dependence_atk_severity_CFL.png");
+
+    % pid
+    figure
+    loss_pid = plot(x, y_loss_pid, 'LineWidth', 2, 'Color', 'red');
+    hold on;
+    acc_pid = plot(x, y_acc_pid, 'LineWidth', 2, 'Color', 'green');
+    xticks([0 10 25 50 75 100]);
+    title('Loss and Accuracy Based on Attack Severity (PID-Enhanced FL Model)');
+    xlabel('Attack Severity');
+    ylabel('Dependence');
+    legend([loss_pid, acc_pid], ["Loss", "Accuracy"], 'Location', 'northeastoutside');
+    grid on;
+    saveas(gcf, "loss_acc_dependence_atk_severity_PID.png");
 
 end
