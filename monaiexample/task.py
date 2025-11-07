@@ -116,82 +116,63 @@ def get_apply_transforms_fn(transforms_to_apply):
 
 ds = None
 partitioner = None
-
+poisoned_ds_cache = None
 
 def load_data(num_partitions, partition_id, batch_size, percent_flipped):
     """Download dataset, partition it and return data loader of specific partition."""
     # Set dataset and partitioner only once
-    global ds, partitioner
-    if percent_flipped == 0.0:
-        if ds is None:
-            # load clean dataset once
-            image_file_list, image_label_list = _download_data()
-            ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
-            partitioner = IidPartitioner(num_partitions)
-            partitioner.dataset = ds
-    else:
-        # build poisoned dataset fresh for each poisoned client
-        poisoned_ds = label_flipping(percent_flipped)
-        partitioner = IidPartitioner(num_partitions)
-        partitioner.dataset = poisoned_ds
+    global ds, partitioner # , poisoned_ds_cache
+    
+    image_file_list, image_label_list = _download_data()
+    ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
 
+    # Split once into clean train/test
+    partition_train_test = ds.train_test_split(test_size=0.2, seed=42)
+    train_ds = partition_train_test["train"]
+    val_ds = partition_train_test["test"]
 
+    # Flip only training labels
+    if percent_flipped > 1:
+        percent_flipped /= 100.0
+    if percent_flipped > 0:
+        train_ds = label_flipping(train_ds, percent_flipped)
+
+    # Partition the (potentially flipped) training data
+    partitioner = IidPartitioner(num_partitions)
+    partitioner.dataset = train_ds
     partition = partitioner.load_partition(partition_id)
 
-    # Take a fraction of the partition (e.g., 10%)
-    subset_fraction = 0.5
-    subset_size = int(len(partition) * subset_fraction)
-    subset_indices = random.sample(range(len(partition)), subset_size)
-    partition = partition.select(subset_indices)
+    # Apply MONAI transforms
+    train_t, val_t = _get_transforms()
+    partition_train = partition.with_transform(get_apply_transforms_fn(train_t))
+    val_ds = val_ds.with_transform(get_apply_transforms_fn(val_t))
 
-    # Split train/validation
-    partition_train_test = partition.train_test_split(test_size=0.2, seed=42)
-
-    # Get transforms
-    train_t, test_t = _get_transforms()
-
-    # Apply transforms individually to each split
-    train_partition = partition_train_test["train"]
-    test_partition = partition_train_test["test"]
-
-    partition_train = train_partition.with_transform(get_apply_transforms_fn(train_t))
-    partition_val = test_partition.with_transform(get_apply_transforms_fn(test_t))
-
-    # Create dataloaders
-    train_loader = monai.data.DataLoader(
-        partition_train, batch_size=batch_size, shuffle=True
-    )
-    val_loader = monai.data.DataLoader(partition_val, batch_size=batch_size)
+    # DataLoaders
+    train_loader = monai.data.DataLoader(partition_train, batch_size=batch_size, shuffle=True)
+    val_loader = monai.data.DataLoader(val_ds, batch_size=batch_size)
 
     return train_loader, val_loader
 
 
-def label_flipping(percent_flipped):
+def label_flipping(ds, percent_flipped):
     """Flip labels for data poisoning attack."""
-    image_file_list, image_label_list = _download_data()
-    ds = Dataset.from_dict({"img_file": image_file_list, "label": image_label_list})
 
-    # pull set of labels out of ds
+    # flip labels on the current dataset, don't redo if already done
     labels = ds["label"]
-    # get total number of unique classes
     num_classes = len(set(labels))
 
-    # flip percent_flipped % of the labels to a different class
     num_to_flip = int(percent_flipped * len(ds))
-    indicies = random.sample(range(len(ds)), num_to_flip)
+    indices = random.sample(range(len(ds)), num_to_flip)
 
-    # copy the labels and flip the selected ones
-    flipped = labels.copy()
-    for i in indicies:
-        original = flipped[i]
-        # check that choosen class is not the same as original
-        class_options = [label for label in range(num_classes) if label != original]
-        # pick random label from remaining options
-        flipped[i] = random.choice(class_options)
+    flipped_labels = labels.copy()
+    for i in indices:
+        original = flipped_labels[i]
+        new_label_options = [label for label in range(num_classes) if label != original]
+        flipped_labels[i] = random.choice(new_label_options)
 
-    # remove old labels and add new flipped ones
-    ds = ds.remove_columns("label").add_column("label", flipped)
-
+    # remap flipped labels
+    ds = ds.remove_columns("label").add_column("label", flipped_labels)
+    
     return ds
 
 

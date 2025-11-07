@@ -8,12 +8,14 @@ from monaiexample.task import get_params, load_data, load_model, set_params, tes
 # from task import get_params, load_data, load_model, set_params, test, train
 
 # Define Flower client
+# Define Flower client
 class FlowerClient(NumPyClient):
-    def __init__(self, net, trainloader, valloader):
+    def __init__(self, net, trainloader, valloader, client_id):
         self.net = net
         self.trainloader = trainloader
         self.valloader = valloader
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.client_id = client_id  # Store the client ID
 
     def fit(self, parameters, config):
         set_params(self.net, parameters)
@@ -23,11 +25,15 @@ class FlowerClient(NumPyClient):
     def evaluate(self, parameters, config):
         set_params(self.net, parameters)
         loss, accuracy = test(self.net, self.valloader, self.device)
-        return loss, len(self.valloader), {"accuracy": accuracy, "loss": loss}
+        # Include client ID in metrics so server can track it
+        return loss, len(self.valloader), {
+            "accuracy": accuracy, 
+            "loss": loss,
+            "client_id": self.client_id  # Add this line
+        }
 
 
 def client_fn(context: Context):
-
     # get configurations from pyproject.toml file
     # partition id defines what client is sampling the data
     partition_id = context.node_config["partition-id"]
@@ -43,8 +49,11 @@ def client_fn(context: Context):
 
     trainloader, valloader = load_data(num_partitions, partition_id, batch_size, percent_flipped)
     net = load_model()
-
-    return FlowerClient(net, trainloader, valloader).to_client()
+    
+    # Create client ID that matches Flower's format
+    client_id = f"client_{partition_id}"
+    
+    return FlowerClient(net, trainloader, valloader, client_id).to_client()
 
 
 app = ClientApp(client_fn=client_fn)

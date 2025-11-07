@@ -13,13 +13,22 @@ from monaiexample.task import get_params, load_model
 # from task import get_params, load_model
 
 
-timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-AGG_CSV = f"results_{timestamp}.csv"          # Aggregated (global) results
-CLIENT_CSV = f"client_metrics_{timestamp}.csv"  # Per-client results
+# Define output folders
+agg_dir = os.path.join(os.getcwd(), "agg_results")
+client_dir = os.path.join(os.getcwd(), "client_results")
 
-# Initialize both CSVs
+# Create folders if they don't exist
+os.makedirs(agg_dir, exist_ok=True)
+os.makedirs(client_dir, exist_ok=True)
+
+# Define full file paths
+AGG_CSV = os.path.join(agg_dir, "aggregated_results.csv")       # Aggregated (global) results
+CLIENT_CSV = os.path.join(client_dir, "per_client_results.csv")  # Per-client results
+
+# Initialize both CSVs if they don’t exist
 if not os.path.exists(AGG_CSV):
     pd.DataFrame(columns=["Round", "AvgAccuracy", "AvgLoss"]).to_csv(AGG_CSV, index=False)
+
 if not os.path.exists(CLIENT_CSV):
     pd.DataFrame(columns=["Client", "Round", "Accuracy", "Loss"]).to_csv(CLIENT_CSV, index=False)
 
@@ -43,12 +52,15 @@ def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
     client_rows = []
 
     # Process result for each client
-    for client_idx, (num_examples, m) in enumerate(metrics):
+    for i, (num_examples, m) in enumerate(metrics):
         acc = m.get("accuracy", None)
         loss = m.get("loss", None)
-
+        
+        # Try to get client_id from metrics, fallback to index if not available
+        client_id = m.get("client_id", f"client_{i}")
+        
         client_rows.append({
-            "Client": client_idx,
+            "Client": client_id,  # Use the actual client ID
             "Round": round_num,
             "Accuracy": acc,
             "Loss": loss,
@@ -87,18 +99,18 @@ def server_fn(context: Context):
     # Define strategy using FedAvg
     fraction_fit = context.run_config["fraction-fit"]
     # Extend FedAvg to prune malicious clients using PID score
-    strategy = PIDFedAvg(k=1.0, ki=0.05, kd=0.5, threshold=0.01,
-        fraction_fit=fraction_fit,
-        evaluate_metrics_aggregation_fn=weighted_average,
-        initial_parameters=global_model_init,
-    )
-
-    # TODO : uncomment to use without PID detection and pruning
-    # strategy = FedAvg(
+    # strategy = PIDFedAvg(k=1.0, ki=0.05, kd=0.5, threshold=0.01,
     #     fraction_fit=fraction_fit,
     #     evaluate_metrics_aggregation_fn=weighted_average,
     #     initial_parameters=global_model_init,
     # )
+
+    # TODO : uncomment to use without PID detection and pruning
+    strategy = FedAvg(
+        fraction_fit=fraction_fit,
+        evaluate_metrics_aggregation_fn=weighted_average,
+        initial_parameters=global_model_init,
+    )
 
     # Configure server rounds
     num_rounds = context.run_config["num-server-rounds"]
