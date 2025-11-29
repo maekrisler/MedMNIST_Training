@@ -7,7 +7,7 @@ from flwr.server.strategy import FedAvg
 from monaiexample.pid_fedAvg import PIDFedAvg
 import pandas as pd
 import os
-import datetime
+from datetime import datetime
 
 from monaiexample.task import get_params, load_model
 # from task import get_params, load_model
@@ -21,9 +21,12 @@ client_dir = os.path.join(os.getcwd(), "client_results")
 os.makedirs(agg_dir, exist_ok=True)
 os.makedirs(client_dir, exist_ok=True)
 
+# Create unique timestamp for this run
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
 # Define full file paths
-AGG_CSV = os.path.join(agg_dir, "aggregated_results.csv")       # Aggregated (global) results
-CLIENT_CSV = os.path.join(client_dir, "per_client_results.csv")  # Per-client results
+AGG_CSV = os.path.join(agg_dir, f"aggregated_results_{timestamp}.csv")       # Aggregated (global) results
+CLIENT_CSV = os.path.join(client_dir, f"per_client_results{timestamp}.csv")  # Per-client results
 
 # Initialize both CSVs if they don’t exist
 if not os.path.exists(AGG_CSV):

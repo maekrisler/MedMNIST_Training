@@ -186,9 +186,10 @@ def _download_data():
     )
 
     # Compute list of files and thier associated labels
-    class_names = sorted(
-        [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
-    )
+    # class_names = sorted(
+    #     [x for x in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, x))]
+    # )
+    class_names = ["HeadCT", "Hand"]
 
     image_files = [
         [
@@ -204,7 +205,7 @@ def _download_data():
         image_label_list.extend([i] * len(image_files[i]))
 
     # TOY RUN FOR TESTING
-    toy_size = 1000
+    toy_size = 3000
     indices = random.sample(range(len(image_file_list)), toy_size)
     image_file_list = [image_file_list[i] for i in indices]
     image_label_list = [image_label_list[i] for i in indices]
